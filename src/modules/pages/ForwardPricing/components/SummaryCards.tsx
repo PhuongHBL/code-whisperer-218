@@ -1,6 +1,11 @@
 import Row from "@/modules/common/components/Row"
 import Col from "@/modules/common/components/Col"
 import TextPrimary from "@/modules/common/components/TextPrimary"
+import type { DashboardOverviewResponse } from "@/api/types/dashboardOverview"
+
+function currencySym(currency: string) {
+  return currency === "USD" ? "$" : `${currency} `
+}
 
 interface StatCard {
   label: string
@@ -8,27 +13,123 @@ interface StatCard {
   badge: string
   badgeColor: string
   borderColor: string
+  /** Tailwind classes for the main figure */
+  valueClassName: string
+  /** Subtle card tint so numbers read as color-coded */
+  cardBgClass: string
+  badgeIsIcon?: boolean
 }
 
-const stats: StatCard[] = [
-  { label: "Total Fleet Analyzed", value: "12,480", badge: "+4.2%", badgeColor: "text-green-600", borderColor: "border-primary" },
-  { label: "Avg Daily Rate (Market)", value: "$94.50", badge: "+$2.15", badgeColor: "text-destructive", borderColor: "border-surface-tint" },
-  { label: "Top Demand Hub", value: "SYD Airport", badge: "trending_up", badgeColor: "text-secondary", borderColor: "border-secondary" },
-  { label: "Lowest Rate Found", value: "$58.00", badge: "BNE Inner", badgeColor: "text-on-surface-variant", borderColor: "border-outline-variant" },
+const fallbackStats: StatCard[] = [
+  {
+    label: "Avg daily rate",
+    value: "—",
+    badge: "—",
+    badgeColor: "text-on-surface-variant",
+    borderColor: "border-sky-500/60",
+    valueClassName: "text-sky-700 dark:text-sky-300",
+    cardBgClass: "bg-gradient-to-br from-sky-500/10 via-surface-container-lowest to-surface-container-lowest",
+  },
+  {
+    label: "Top demand hub",
+    value: "—",
+    badge: "location_on",
+    badgeColor: "text-violet-600 dark:text-violet-400",
+    borderColor: "border-violet-500/50",
+    badgeIsIcon: true,
+    valueClassName: "text-violet-800 dark:text-violet-300",
+    cardBgClass: "bg-gradient-to-br from-violet-500/10 via-surface-container-lowest to-surface-container-lowest",
+  },
+  {
+    label: "Lowest rate",
+    value: "—",
+    badge: "—",
+    badgeColor: "text-on-surface-variant",
+    borderColor: "border-emerald-500/55",
+    valueClassName: "text-emerald-700 dark:text-emerald-400",
+    cardBgClass: "bg-gradient-to-br from-emerald-500/10 via-surface-container-lowest to-surface-container-lowest",
+  },
+  {
+    label: "Highest rate",
+    value: "—",
+    badge: "—",
+    badgeColor: "text-on-surface-variant",
+    borderColor: "border-orange-500/55",
+    valueClassName: "text-orange-700 dark:text-orange-400",
+    cardBgClass: "bg-gradient-to-br from-orange-500/10 via-surface-container-lowest to-surface-container-lowest",
+  },
 ]
 
-export default function SummaryCards() {
+function buildStats(overview: DashboardOverviewResponse): StatCard[] {
+  const sym = currencySym(overview.currency)
+  const { summary } = overview
+  const hub = summary.top_demand_hub?.trim() ? summary.top_demand_hub : overview.location
+
+  return [
+    {
+      label: "Avg daily rate",
+      value: `${sym}${summary.avg_daily_rate.toFixed(2)}`,
+      badge: `${summary.competitor_count} competitors`,
+      badgeColor: "text-sky-800/90 dark:text-sky-300/90 font-black",
+      borderColor: "border-sky-500/60",
+      valueClassName: "text-sky-700 dark:text-sky-300 drop-shadow-sm",
+      cardBgClass: "bg-gradient-to-br from-sky-500/10 via-surface-container-lowest to-surface-container-lowest",
+    },
+    {
+      label: "Top demand hub",
+      value: hub,
+      badge: "location_on",
+      badgeColor: "text-violet-600 dark:text-violet-400",
+      borderColor: "border-violet-500/50",
+      valueClassName: "text-violet-800 dark:text-violet-300 drop-shadow-sm",
+      cardBgClass: "bg-gradient-to-br from-violet-500/10 via-surface-container-lowest to-surface-container-lowest",
+      badgeIsIcon: true,
+    },
+    {
+      label: "Lowest rate",
+      value: `${sym}${summary.lowest_rate.price.toFixed(2)}`,
+      badge: summary.lowest_rate.competitor,
+      badgeColor: "text-emerald-800/85 dark:text-emerald-400/90 font-bold",
+      borderColor: "border-emerald-500/55",
+      valueClassName: "text-emerald-700 dark:text-emerald-400 drop-shadow-sm",
+      cardBgClass: "bg-gradient-to-br from-emerald-500/10 via-surface-container-lowest to-surface-container-lowest",
+    },
+    {
+      label: "Highest rate",
+      value: `${sym}${summary.highest_rate.price.toFixed(2)}`,
+      badge: summary.highest_rate.competitor,
+      badgeColor: "text-orange-800/85 dark:text-orange-400/90 font-bold",
+      borderColor: "border-orange-500/55",
+      valueClassName: "text-orange-700 dark:text-orange-400 drop-shadow-sm",
+      cardBgClass: "bg-gradient-to-br from-orange-500/10 via-surface-container-lowest to-surface-container-lowest",
+    },
+  ]
+}
+
+interface SummaryCardsProps {
+  overview?: DashboardOverviewResponse | null
+}
+
+export default function SummaryCards({ overview }: SummaryCardsProps) {
+  const stats = overview ? buildStats(overview) : fallbackStats
+
   return (
     <Row className="flex-col sm:flex-row sm:flex-wrap gap-4">
       {stats.map((s) => (
-        <Col key={s.label} className={`flex-1 min-w-[200px] bg-surface-container-lowest p-5 rounded-lg shadow-sm border-l-4 ${s.borderColor}`}>
-          <TextPrimary text={s.label} className="text-[0.625rem] font-black uppercase tracking-widest text-on-surface-variant mb-1" />
-          <Row className="items-end gap-2">
-            <TextPrimary text={s.value} className="text-2xl font-black text-primary" />
-            {s.badge === "trending_up" ? (
-              <TextPrimary text="trending_up" className={`material-symbols-outlined text-sm mb-1 ${s.badgeColor}`} />
+        <Col
+          key={s.label}
+          className={`flex-1 min-w-[180px] sm:min-w-[200px] p-4 rounded-lg shadow-sm border-l-4 ${s.borderColor} ${s.cardBgClass}`}
+        >
+          <TextPrimary text={s.label} className="text-[0.5625rem] font-black uppercase tracking-widest text-on-surface-variant mb-0.5" />
+          <Row className="items-end gap-1.5">
+            <TextPrimary
+              text={s.value}
+              className={`text-lg sm:text-xl font-black tabular-nums tracking-tight ${s.valueClassName}`}
+            />
+            {s.badgeIsIcon ? (
+              <TextPrimary text={s.badge} className={`material-symbols-outlined text-xs mb-0.5 ${s.badgeColor}`} />
             ) : (
-              <TextPrimary text={s.badge} className={`text-[0.625rem] font-bold mb-1 ${s.badgeColor}`} />
+              <TextPrimary text={s.badge} className={`text-[0.5625rem] font-bold mb-0.5 truncate max-w-[10rem] ${s.badgeColor}`} />
             )}
           </Row>
         </Col>

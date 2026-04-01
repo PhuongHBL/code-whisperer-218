@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { fetchPredictMatrix } from "@/api/fetchPredictMatrix"
 import type { PredictMatrixRequest } from "@/api/types/predictMatrix"
 
@@ -41,5 +41,6 @@ export function useQueryPredictMatrix(
     enabled: Boolean(body && body.competitors.length > 0),
     staleTime: 0,
     retry: 1,
+    placeholderData: keepPreviousData,
   })
 }

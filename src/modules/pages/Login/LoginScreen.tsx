@@ -1,48 +1,55 @@
-import { useCallback, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "@/hooks/useAuth"
-import Col from "@/modules/common/components/Col"
-import Row from "@/modules/common/components/Row"
-import Box from "@/modules/common/components/Box"
-import TextPrimary from "@/modules/common/components/TextPrimary"
-import BaseButton from "@/modules/common/components/BaseButton"
-import BaseInput from "@/modules/common/components/BaseInput"
+import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import Col from "@/modules/common/components/Col";
+import Row from "@/modules/common/components/Row";
+import Box from "@/modules/common/components/Box";
+import TextPrimary from "@/modules/common/components/TextPrimary";
+import BaseButton from "@/modules/common/components/BaseButton";
+import BaseInput from "@/modules/common/components/BaseInput";
+import signalLogo from "@/images/signal_img.png";
 
 interface IForm {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 export default function LoginScreen() {
-  const { user, isAuthLoading, signInWithGoogle, signInWithDevDemo, isDevDemoLoginAvailable } =
-    useAuth()
-  const navigate = useNavigate()
-  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false)
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
+  const {
+    user,
+    isAuthLoading,
+    signInWithGoogle,
+    signInWithDevDemo,
+    signInWithPassword,
+    isDevDemoLoginAvailable,
+  } = useAuth();
+  const navigate = useNavigate();
+  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const form = useForm<IForm>({
     defaultValues: { email: "", password: "" },
     mode: "onChange",
-  })
+  });
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to home (dashboard is served at `/`)
   useEffect(() => {
     if (!isAuthLoading && user) {
-      navigate("/dashboard", { replace: true })
+      navigate("/", { replace: true });
     }
-  }, [isAuthLoading, user, navigate])
+  }, [isAuthLoading, user, navigate]);
 
   const handleGoogleSignIn = useCallback(async () => {
-    setIsGoogleSubmitting(true)
+    setIsGoogleSubmitting(true);
     try {
-      await signInWithGoogle()
+      await signInWithGoogle();
     } catch {
       // Error toast already shown in signInWithGoogle
     } finally {
-      setIsGoogleSubmitting(false)
+      setIsGoogleSubmitting(false);
     }
-  }, [signInWithGoogle])
+  }, [signInWithGoogle]);
 
   return (
     <Col className="login-screen min-h-screen bg-surface font-body text-on-surface relative overflow-hidden">
@@ -53,7 +60,8 @@ export default function LoginScreen() {
         <Box
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: "radial-gradient(hsl(var(--primary)) 1px, transparent 1px)",
+            backgroundImage:
+              "radial-gradient(hsl(var(--primary)) 1px, transparent 1px)",
             backgroundSize: "2.5rem 2.5rem",
           }}
         />
@@ -75,141 +83,145 @@ export default function LoginScreen() {
       <Col className="flex-grow items-center justify-center p-6 z-10 relative">
         <Col className="w-full max-w-[27.5rem] items-center">
           {/* Logo */}
-          <Col className="mb-10 items-center gap-3">
-            <Row className="w-[3.5rem] h-[3.5rem] bg-primary-container items-center justify-center rounded-xl shadow-xl">
-              <TextPrimary text="⊕" className="text-primary-foreground text-2xl" />
-            </Row>
-            <TextPrimary
-              text="SIGNAL"
-              className="text-2xl font-black tracking-tighter text-primary"
-              uppercase
-            />
+          <Col className="mb-10 items-center gap-4">
+            <Box className="rounded-2xl bg-white px-5 py-3.5 shadow-sm ring-1 ring-black/[0.06] dark:ring-white/15">
+              <img
+                src={signalLogo}
+                alt="Signal — rental dynamic pricing"
+                className="w-full max-w-[9rem] sm:max-w-[11rem] h-auto object-contain select-none"
+                width={176}
+                height={44}
+                decoding="async"
+              />
+            </Box>
             <TextPrimary
               text="Fleet & Pricing Intelligence"
-              className="text-on-surface-variant font-label text-xs tracking-widest"
+              className="text-on-surface-variant font-label text-xs tracking-widest text-center"
               uppercase
             />
           </Col>
 
           {/* Login Card */}
           <Col className="w-full glass-panel rounded-xl shadow-[0_2rem_4rem_-0.75rem_rgba(0,10,30,0.1)] p-8 md:p-10 gap-8">
-              {/* Heading */}
-              <Col className="gap-1">
-                <TextPrimary
-                  text={isAuthLoading ? "Checking session" : "Welcome back"}
-                  className="text-2xl font-bold tracking-tight text-on-surface"
-                />
-                <TextPrimary
-                  text={
-                    isAuthLoading
-                      ? "Restoring your authentication state."
-                      : "Please enter your details to access the terminal."
-                  }
-                  className="text-on-surface-variant text-sm"
-                />
-              </Col>
+            {/* Heading */}
+            <Col className="gap-1">
+              <TextPrimary
+                text={isAuthLoading ? "Checking session" : "Welcome back"}
+                className="text-2xl font-bold tracking-tight text-on-surface"
+              />
+              <TextPrimary
+                text={
+                  isAuthLoading
+                    ? "Restoring your authentication state."
+                    : "Please enter your details to access the terminal."
+                }
+                className="text-on-surface-variant text-sm"
+              />
+            </Col>
 
-              {/* Actions */}
-              <Col className="gap-4">
+            {/* Actions */}
+            <Col className="gap-4">
+              {/* <BaseButton
+                variant="bordered"
+                size="md"
+                className="w-full py-[0.875rem]"
+                isLoading={isGoogleSubmitting}
+                onClick={() => void handleGoogleSignIn()}
+              >
+                <img
+                  alt="Google Logo"
+                  className="w-5 h-5"
+                  src="https://www.google.com/favicon.ico"
+                />
+                <TextPrimary
+                  text="Sign in with Google"
+                  className="font-semibold text-on-surface text-sm"
+                />
+              </BaseButton> */}
+
+              {/* {isDevDemoLoginAvailable ? (
                 <BaseButton
                   variant="bordered"
                   size="md"
-                  className="w-full py-[0.875rem]"
-                  isLoading={isGoogleSubmitting}
-                  onClick={() => void handleGoogleSignIn()}
+                  className="w-full py-[0.875rem] border-dashed border-outline-variant/60"
+                  onClick={() => signInWithDevDemo()}
                 >
-                  <img
-                    alt="Google Logo"
-                    className="w-5 h-5"
-                    src="https://www.google.com/favicon.ico"
+                  <TextPrimary
+                    text="Continue as demo user"
+                    className="font-semibold text-on-surface-variant text-sm"
                   />
-                  <TextPrimary text="Sign in with Google" className="font-semibold text-on-surface text-sm" />
                 </BaseButton>
+              ) : null} */}
 
-                {isDevDemoLoginAvailable ? (
+              {/* Divider */}
+              {/* <Row className="items-center gap-4 py-2">
+                <Box className="flex-grow h-[1px] bg-outline-variant/30" />
+                <TextPrimary
+                  text="or email"
+                  className="text-[0.625rem] font-bold text-on-surface-variant/60 tracking-widest"
+                  uppercase
+                />
+                <Box className="flex-grow h-[1px] bg-outline-variant/30" />
+              </Row> */}
+
+              {/* Form */}
+              <form
+                onSubmit={form.handleSubmit(async (data) => {
+                  setIsEmailSubmitting(true);
+                  try {
+                    await signInWithPassword(data.email.trim(), data.password);
+                  } catch {
+                    // Error surfaced via toast in signInWithPassword
+                  } finally {
+                    setIsEmailSubmitting(false);
+                  }
+                })}
+              >
+                <Col className="gap-5">
+                  <BaseInput
+                    label="Email Address"
+                    type="email"
+                    placeholder="name@company.com"
+                    {...form.register("email", { required: true })}
+                  />
+
+                  <Col className="gap-[0.375rem]">
+                    <Row className="justify-between items-center px-1">
+                      <TextPrimary
+                        text="Password"
+                        className="text-xs font-bold text-on-surface-variant uppercase tracking-wider"
+                      />
+                      <a className="text-[0.6875rem] font-semibold text-surface-tint hover:underline cursor-pointer">
+                        <TextPrimary text="Forgot password?" className="" />
+                      </a>
+                    </Row>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      className="w-full bg-surface-container-low border-0 ring-1 ring-outline-variant/50 focus:ring-2 focus:ring-surface-tint rounded-lg py-3 px-4 text-on-surface text-sm transition-all outline-none"
+                      {...form.register("password", { required: true })}
+                    />
+                  </Col>
+
                   <BaseButton
-                    variant="bordered"
-                    size="md"
-                    className="w-full py-[0.875rem] border-dashed border-outline-variant/60"
-                    onClick={() => signInWithDevDemo()}
+                    type="submit"
+                    variant="filled-gradient"
+                    size="lg"
+                    className="w-full group"
+                    isLoading={isEmailSubmitting}
                   >
+                    <TextPrimary text="Sign in to Signal" className="" />
                     <TextPrimary
-                      text="Continue as demo user"
-                      className="font-semibold text-on-surface-variant text-sm"
+                      text="→"
+                      className="text-sm group-hover:translate-x-1 transition-transform inline-block"
                     />
                   </BaseButton>
-                ) : null}
-
-                {/* Divider */}
-                <Row className="items-center gap-4 py-2">
-                  <Box className="flex-grow h-[1px] bg-outline-variant/30" />
-                  <TextPrimary
-                    text="or email"
-                    className="text-[0.625rem] font-bold text-on-surface-variant/60 tracking-widest"
-                    uppercase
-                  />
-                  <Box className="flex-grow h-[1px] bg-outline-variant/30" />
-                </Row>
-
-                {/* Form */}
-                <form
-                  onSubmit={form.handleSubmit(async (data) => {
-                    // TODO: Should create mutation for login - performance tuning
-                    setIsEmailSubmitting(true)
-                    try {
-                      console.log("Login submitted:", data)
-                      await new Promise((resolve) => setTimeout(resolve, 1000))
-                    } finally {
-                      setIsEmailSubmitting(false)
-                    }
-                  })}
-                >
-                  <Col className="gap-5">
-                    <BaseInput
-                      label="Email Address"
-                      type="email"
-                      placeholder="name@company.com"
-                      {...form.register("email", { required: true })}
-                    />
-
-                    <Col className="gap-[0.375rem]">
-                      <Row className="justify-between items-center px-1">
-                        <TextPrimary
-                          text="Password"
-                          className="text-xs font-bold text-on-surface-variant uppercase tracking-wider"
-                        />
-                        <a
-                          className="text-[0.6875rem] font-semibold text-surface-tint hover:underline cursor-pointer"
-                        >
-                          <TextPrimary text="Forgot password?" className="" />
-                        </a>
-                      </Row>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        className="w-full bg-surface-container-low border-0 ring-1 ring-outline-variant/50 focus:ring-2 focus:ring-surface-tint rounded-lg py-3 px-4 text-on-surface text-sm transition-all outline-none"
-                        {...form.register("password", { required: true })}
-                      />
-                    </Col>
-
-                    <BaseButton
-                      type="submit"
-                      variant="filled-gradient"
-                      size="lg"
-                      className="w-full group"
-                      isLoading={isEmailSubmitting}
-                    >
-                      <TextPrimary text="Sign in to Fleet" className="" />
-                      <TextPrimary text="→" className="text-sm group-hover:translate-x-1 transition-transform inline-block" />
-                    </BaseButton>
-                  </Col>
-                </form>
-              </Col>
-
+                </Col>
+              </form>
+            </Col>
           </Col>
-
         </Col>
       </Col>
     </Col>
-  )
+  );
 }

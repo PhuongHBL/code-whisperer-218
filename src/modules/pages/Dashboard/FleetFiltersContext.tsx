@@ -6,14 +6,13 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { subDays } from "date-fns"
+import { addDays, startOfToday } from "date-fns"
 import type { DateRange } from "react-day-picker"
 import { useQueryFleetOptions } from "@/api/useQueryFleetOptions"
-import { ALL_COMPETITORS_VALUE } from "@/modules/pages/Dashboard/fleetFilterUtils"
 
 function initialAnalysisRange(): DateRange {
-  const to = new Date()
-  return { from: subDays(to, 30), to }
+  const from = startOfToday()
+  return { from, to: addDays(from, 6) }
 }
 
 const EMPTY_LIST: string[] = []
@@ -33,9 +32,9 @@ type FleetFiltersContextValue = {
   /** Resolved selection (defaults to first `car_category`). */
   carCategory: string
   setCarCategory: (v: string) => void
-  /** Empty string = all competitors */
-  compareCompany: string
-  setCompareCompany: (v: string) => void
+  /** Empty array = all competitors; otherwise only listed names are requested. */
+  compareCompanies: string[]
+  setCompareCompanies: (v: string[] | ((prev: string[]) => string[])) => void
   /** Dashboard analysis window (inclusive start/end days). */
   analysisRange: DateRange | undefined
   setAnalysisRange: (range: DateRange | undefined) => void
@@ -52,7 +51,7 @@ export function FleetFiltersProvider({ children }: { children: ReactNode }) {
   const { data, isLoading, isError, error } = useQueryFleetOptions()
   const [cityHubOverride, setCityHubOverride] = useState<string | null>(null)
   const [carCategoryOverride, setCarCategoryOverride] = useState<string | null>(null)
-  const [compareCompany, setCompareCompanyState] = useState(ALL_COMPETITORS_VALUE)
+  const [compareCompanies, setCompareCompaniesState] = useState<string[]>([])
   const [analysisRange, setAnalysisRangeState] = useState<DateRange | undefined>(initialAnalysisRange)
   const [predictMatrixRequestEpoch, setPredictMatrixRequestEpoch] = useState(0)
 
@@ -90,9 +89,9 @@ export function FleetFiltersProvider({ children }: { children: ReactNode }) {
     },
     [bumpPredictMatrixEpoch],
   )
-  const setCompareCompany = useCallback(
-    (v: string) => {
-      setCompareCompanyState(v)
+  const setCompareCompanies = useCallback(
+    (v: string[] | ((prev: string[]) => string[])) => {
+      setCompareCompaniesState(v)
       bumpPredictMatrixEpoch()
     },
     [bumpPredictMatrixEpoch],
@@ -117,8 +116,8 @@ export function FleetFiltersProvider({ children }: { children: ReactNode }) {
       setCityHub,
       carCategory,
       setCarCategory,
-      compareCompany,
-      setCompareCompany,
+      compareCompanies,
+      setCompareCompanies,
       analysisRange,
       setAnalysisRange,
       predictMatrixRequestEpoch,
@@ -134,8 +133,8 @@ export function FleetFiltersProvider({ children }: { children: ReactNode }) {
       setCityHub,
       carCategory,
       setCarCategory,
-      compareCompany,
-      setCompareCompany,
+      compareCompanies,
+      setCompareCompanies,
       analysisRange,
       setAnalysisRange,
       predictMatrixRequestEpoch,

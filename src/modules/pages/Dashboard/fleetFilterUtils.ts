@@ -1,14 +1,5 @@
-import { useMemo } from "react"
-
-export const ALL_COMPETITORS_VALUE = ""
-
-/** Compare selector: optional empty value meaning all competitors. */
-export function useCompareCompanyOptions(competitors: string[]) {
-  return useMemo(
-    () => [
-      { value: ALL_COMPETITORS_VALUE, label: "All competitors" },
-      ...competitors.map((c) => ({ value: c, label: c })),
-    ],
-    [competitors],
-  )
+/** Empty `selected` means include every competitor from fleet options. */
+export function resolveCompetitorsForRequest(selected: string[], allCompetitors: string[]): string[] {
+  if (selected.length === 0) return [...allCompetitors]
+  return selected.filter((c) => allCompetitors.includes(c))
 }

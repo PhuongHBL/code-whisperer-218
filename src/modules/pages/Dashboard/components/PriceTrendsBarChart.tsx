@@ -4,12 +4,12 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
+  BarController,
   Tooltip,
 } from "chart.js";
 import type { ChartOptions } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import Col from "@/modules/common/components/Col";
 import Row from "@/modules/common/components/Row";
 import Box from "@/modules/common/components/Box";
@@ -28,34 +28,37 @@ import {
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
+  BarController,
   Tooltip,
 );
 
-const LINE_TENSION = 0.35;
 const GRID_DASH: [number, number] = [5, 6];
 const GRID_COLOR = "rgba(200, 200, 200, 0.5)";
 const GRID_BORDER_COLOR = "hsl(var(--outline-variant) / 0.32)";
 
-function globalMaxY(series: { values: number[] }[]): number | null {
-  let max = -Infinity;
-  for (const s of series) {
-    for (const v of s.values) {
-      if (Number.isFinite(v) && v > max) max = v;
-    }
+function barFillFromStroke(stroke: string): string {
+  if (stroke.startsWith("#")) {
+    const hex =
+      stroke.length === 4
+        ? stroke
+            .slice(1)
+            .split("")
+            .map((c) => c + c)
+            .join("")
+        : stroke.slice(1, 7);
+    const n = Number.parseInt(hex, 16);
+    const r = (n >> 16) & 255;
+    const g = (n >> 8) & 255;
+    const b = n & 255;
+    return `rgba(${r},${g},${b},0.78)`;
   }
-  return max === -Infinity ? null : max;
-}
-
-function isGlobalPeakValue(y: number | null, globalMax: number): boolean {
-  if (y == null || !Number.isFinite(y)) return false;
-  return Math.abs(y - globalMax) <= Math.max(1e-6, Math.abs(globalMax) * 1e-9);
+  return stroke;
 }
 
 type Props = { shared: PredictMatrixDashboardChartContext };
 
-export default function PriceTrendsChart({ shared }: Props) {
+export default function PriceTrendsBarChart({ shared }: Props) {
   const {
     model,
     signalHidden,
@@ -74,50 +77,25 @@ export default function PriceTrendsChart({ shared }: Props) {
     if (!model) return null;
     const visibleSeries = visiblePredictMatrixSeries(model, signalHidden);
     if (visibleSeries.length === 0) return null;
-    const peakY = globalMaxY(visibleSeries);
     return {
       labels: model.shortLabels,
-      datasets: visibleSeries.map((s) => {
-        const dataArr = s.values.map((v) =>
-          Number.isFinite(v) ? v : null,
-        ) as (number | null)[];
-        return {
-          label: s.label,
-          data: dataArr,
-          borderColor: s.stroke,
-          backgroundColor: s.stroke,
-          borderWidth: Math.min(Math.round(s.strokeWidth), 4),
-          borderDash: s.strokeDasharray
-            ? ([8, 5] as [number, number])
-            : undefined,
-          tension: LINE_TENSION,
-          cubicInterpolationMode: "monotone" as const,
-          fill: false,
-          spanGaps: false,
-          pointRadius: (ctx: { parsed: { y: unknown } }) => {
-            if (peakY == null) return 0;
-            const y = ctx.parsed.y as number | null;
-            return isGlobalPeakValue(y, peakY) ? 4 : 0;
-          },
-          pointHoverRadius: (ctx: { parsed: { y: unknown } }) => {
-            if (peakY == null) return 0;
-            const y = ctx.parsed.y as number | null;
-            return isGlobalPeakValue(y, peakY) ? 7 : 0;
-          },
-          pointHitRadius: (ctx: { parsed: { y: unknown } }) => {
-            if (peakY == null) return 0;
-            const y = ctx.parsed.y as number | null;
-            return isGlobalPeakValue(y, peakY) ? 14 : 0;
-          },
-          pointBackgroundColor: s.stroke,
-          pointBorderColor: s.stroke,
-          pointBorderWidth: 0,
-        };
-      }),
+      datasets: visibleSeries.map((s) => ({
+        label: s.label,
+        data: s.values.map((v) => (Number.isFinite(v) ? v : null)) as (
+          | number
+          | null
+        )[],
+        backgroundColor: barFillFromStroke(s.stroke),
+        borderColor: s.stroke,
+        borderWidth: s.id === "signal" ? 2 : 1,
+        borderRadius: 4,
+        borderSkipped: false,
+        maxBarThickness: 28,
+      })),
     };
   }, [model, signalHidden]);
 
-  const chartOptions = useMemo<ChartOptions<"line">>(() => {
+  const chartOptions = useMemo<ChartOptions<"bar">>(() => {
     if (!model) {
       return {
         responsive: true,
@@ -136,13 +114,19 @@ export default function PriceTrendsChart({ shared }: Props) {
       },
       interaction: {
         mode: "nearest",
-        intersect: false,
+        intersect: true,
+      },
+      datasets: {
+        bar: {
+          categoryPercentage: 0.72,
+          barPercentage: 0.9,
+        },
       },
       plugins: {
         legend: { display: false },
         tooltip: {
           mode: "nearest",
-          intersect: false,
+          intersect: true,
           backgroundColor: "hsl(var(--popover) / 0.95)",
           titleColor: "hsl(var(--primary))",
           bodyColor: "hsl(var(--popover-foreground))",
@@ -171,6 +155,7 @@ export default function PriceTrendsChart({ shared }: Props) {
       },
       scales: {
         x: {
+          stacked: false,
           grid: {
             display: true,
             color: GRID_COLOR,
@@ -193,6 +178,7 @@ export default function PriceTrendsChart({ shared }: Props) {
           },
         },
         y: {
+          stacked: false,
           min: model.yMin,
           max: model.yMax + topHeadroom,
           grid: {
@@ -214,18 +200,6 @@ export default function PriceTrendsChart({ shared }: Props) {
           },
         },
       },
-      elements: {
-        line: {
-          tension: LINE_TENSION,
-          cubicInterpolationMode: "monotone" as const,
-          borderCapStyle: "round",
-          borderJoinStyle: "round",
-        },
-        point: {
-          radius: 0,
-          hoverRadius: 5,
-        },
-      },
     };
   }, [model, currency]);
 
@@ -237,7 +211,7 @@ export default function PriceTrendsChart({ shared }: Props) {
         <Col className="gap-0.5">
           <Row className="items-center gap-2">
             <TextPrimary
-              text="Price Trends"
+              text="Price comparison"
               className="text-base md:text-lg font-bold text-primary tracking-tight"
             />
             <InfoTooltip>
@@ -257,18 +231,17 @@ export default function PriceTrendsChart({ shared }: Props) {
                 side="bottom"
                 className="max-w-[16rem] text-xs leading-relaxed"
               >
-                Predicted daily rates from the fleet /predict/matrix API for the
-                selected hub, category, analysis window, and competitors. Use the
-                filters bar or click legend chips to add or remove series; click
-                Signal to hide or show the average line. Hover the chart for
-                values by date.
+                Same data and filters as the line chart: grouped bars per day,
+                one series per company plus Signal (average). Legend chips match
+                the line chart — click to show, hide, or remove series from the
+                comparison request.
               </TooltipContent>
             </InfoTooltip>
           </Row>
           <TextPrimary
             text={
               data
-                ? `Predicted pricing — ${data.total_days} days (${currency}) · ${carCategory || "—"}`
+                ? `Daily predicted rates — ${data.total_days} days (${currency}) · ${carCategory || "—"}`
                 : `Predicted pricing for ${carCategory || "—"}`
             }
             className="text-xs text-on-surface-variant"
@@ -286,19 +259,23 @@ export default function PriceTrendsChart({ shared }: Props) {
             />
           ) : null}
         </Col>
-        <Row className="flex-wrap gap-2" role="toolbar" aria-label="Chart series">
+        <Row
+          className="flex-wrap gap-2"
+          role="toolbar"
+          aria-label="Bar chart series"
+        >
           {model?.series.map((s) => {
             const isSignal = s.id === "signal";
             return (
               <button
-                key={s.id}
+                key={`bar-${s.id}`}
                 type="button"
                 aria-pressed={isSignal ? signalLineOn : true}
                 aria-label={
                   isSignal
                     ? signalLineOn
-                      ? "Hide Signal average line"
-                      : "Show Signal average line"
+                      ? "Hide Signal average from bar chart"
+                      : "Show Signal average on bar chart"
                     : `Remove ${s.label} from comparison`
                 }
                 onClick={() => onLegendClick(s.id)}
@@ -314,7 +291,7 @@ export default function PriceTrendsChart({ shared }: Props) {
               >
                 <Box
                   className={cn(
-                    "w-2 h-2 rounded-full shrink-0",
+                    "w-2 h-2 rounded-sm shrink-0",
                     isSignal && !signalLineOn && "opacity-35",
                   )}
                   style={{ backgroundColor: s.stroke }}
@@ -354,10 +331,10 @@ export default function PriceTrendsChart({ shared }: Props) {
           {chartData ? (
             <div
               role="img"
-              aria-label="Price trends line chart"
+              aria-label="Price comparison bar chart"
               className="w-full h-full"
             >
-              <Line data={chartData} options={chartOptions} />
+              <Bar data={chartData} options={chartOptions} />
             </div>
           ) : null}
         </Box>

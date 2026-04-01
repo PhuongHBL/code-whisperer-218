@@ -19,23 +19,36 @@ export type PredictMatrixChartModel = {
   yMax: number
 }
 
-const COMPETITOR_STROKES = [
-  "hsl(var(--secondary))",
-  "hsl(30,89%,67%)",
-  "hsl(var(--primary-container))",
-  "hsl(280, 48%, 58%)",
-  "hsl(160, 45%, 42%)",
-  "hsl(340, 55%, 52%)",
-] as const
+/** Thick Signal (average) line — fixed hue so it won’t match golden-angle competitor hues. */
+const SIGNAL_STROKE = "#b45309"
 
-function finiteValues(matrix: Record<string, number[]>): number[] {
+/**
+ * Golden-angle hue step (~137.5°) per competitor index so every line sits far apart on the wheel
+ * (no short palette repeat → no duplicate-looking colors when many competitors).
+ * Saturation/lightness jitter breaks rare near-matches for large `index`.
+ */
+function competitorStroke(index: number): string {
+  const hue = (index * 137.508) % 360
+  const sat = 68 + (index % 3) * 5
+  const light = 33 + (index % 2) * 5
+  return `hsl(${Math.round(hue * 100) / 100}, ${sat}%, ${light}%)`
+}
+
+/** Min/max Y from API matrix only (raw `predicted_price`), not derived series. */
+function matrixPredictedPriceBounds(res: PredictMatrixResponse): {
+  yMin: number
+  yMax: number
+} {
   const out: number[] = []
-  for (const arr of Object.values(matrix)) {
-    for (const v of arr) {
-      if (Number.isFinite(v)) out.push(v)
+  for (const arr of Object.values(res.matrix ?? {})) {
+    for (const p of arr) {
+      if (Number.isFinite(p.predicted_price)) out.push(p.predicted_price)
     }
   }
-  return out
+  if (out.length === 0) return { yMin: 0, yMax: 1 }
+  const yMin = Math.min(...out)
+  const yMax = Math.max(...out)
+  return { yMin, yMax }
 }
 
 /** Ordered competitor keys: prefer API `competitors` order; include any extra matrix keys. */
@@ -75,24 +88,19 @@ export function buildPredictMatrixChartModel(res: PredictMatrixResponse | undefi
 
   const shortLabels = dates.map((d) => {
     try {
-      return format(parseISO(d), "MMM d")
+      return format(parseISO(d), "dd/MM/yyyy")
     } catch {
       return d
     }
   })
 
-  const competitorFinite = finiteValues(byCompetitor)
-  const signalFinite = signal.filter(Number.isFinite)
-  const allFinite =
-    keys.length > 1 ? [...competitorFinite, ...signalFinite] : competitorFinite
-  const yMin = allFinite.length ? Math.min(...allFinite) : 0
-  const yMax = allFinite.length ? Math.max(...allFinite, yMin + 1) : 1
+  const { yMin, yMax } = matrixPredictedPriceBounds(res)
 
   const competitorSeries: ChartSeries[] = keys.map((k, i) => ({
     id: k,
     label: k,
     values: byCompetitor[k]!,
-    stroke: COMPETITOR_STROKES[i % COMPETITOR_STROKES.length]!,
+    stroke: competitorStroke(i),
     strokeWidth: 2.5,
     strokeDasharray: i === 0 ? "8 5" : undefined,
   }))
@@ -104,14 +112,14 @@ export function buildPredictMatrixChartModel(res: PredictMatrixResponse | undefi
             id: "signal",
             label: "Signal",
             values: signal,
-            stroke: "hsl(var(--primary))",
+            stroke: SIGNAL_STROKE,
             strokeWidth: 5,
           },
           ...competitorSeries,
         ]
       : competitorSeries.map((s, i) =>
           i === 0
-            ? { ...s, stroke: "hsl(var(--primary))", strokeWidth: 5, strokeDasharray: undefined }
+            ? { ...s, stroke: SIGNAL_STROKE, strokeWidth: 5, strokeDasharray: undefined }
             : s,
         )
 

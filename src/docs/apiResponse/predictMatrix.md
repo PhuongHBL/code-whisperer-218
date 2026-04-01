@@ -1,11 +1,11 @@
-curl 'http://172.16.52.46:8000/predict/matrix' \
+curl 'http://172.16.52.27:8080/pd//predict/matrix' \
  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
  -H 'Cache-Control: no-cache' \
  -H 'Connection: keep-alive' \
  -H 'Content-Type: application/json' \
- -H 'Origin: http://172.16.52.46:8000' \
+ -H 'Origin: http://172.16.52.27:8080/pd/' \
  -H 'Pragma: no-cache' \
- -H 'Referer: http://172.16.52.46:8000/docs' \
+ -H 'Referer: http://172.16.52.27:8080/pd//docs' \
  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36' \
  -H 'accept: application/json' \
  --data-raw $'{\n "location": "Sydney Airport",\n "car_category": "Economy",\n "start_date": "2026-04-01",\n "end_date": "2026-04-30",\n "competitors": [\n "Avis",\n "Hertz",\n "Budget"\n ]\n}' \

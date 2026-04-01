@@ -1,5 +1,5 @@
-import ForwardPricingScreen from "@/modules/pages/ForwardPricing/ForwardPricingScreen"
+import ForwardPricingScreen from "@/modules/pages/ForwardPricing/ForwardPricingScreen";
 
 export default function ForwardPricing() {
-  return <ForwardPricingScreen />
+  return <ForwardPricingScreen />;
 }

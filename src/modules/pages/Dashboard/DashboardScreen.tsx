@@ -4,8 +4,7 @@ import Col from "@/modules/common/components/Col"
 import Box from "@/modules/common/components/Box"
 import TopNavBar from "./components/TopNavBar"
 import HeroHeader from "./components/HeroHeader"
-import PriceTrendsChart from "./components/PriceTrendsChart"
-import FooterBranding from "./components/FooterBranding"
+import DashboardPriceTrendsSection from "./components/DashboardPriceTrendsSection"
 import { FleetFiltersProvider } from "./FleetFiltersContext"
 
 export default function DashboardScreen() {
@@ -26,12 +25,11 @@ export default function DashboardScreen() {
           <FleetFiltersProvider>
             <Col className="flex-1">
               <HeroHeader />
-              <Box className="px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-10">
+              <Box className="px-2.5 md:px-4 lg:px-5 py-2 md:py-3 lg:py-4">
                 <Col className="max-w-7xl mx-auto">
-                  <PriceTrendsChart />
+                  <DashboardPriceTrendsSection />
                 </Col>
               </Box>
-              <FooterBranding />
             </Col>
           </FleetFiltersProvider>
         </>

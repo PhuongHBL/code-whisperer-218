@@ -1,9 +1,9 @@
-curl 'http://172.16.52.46:8000/options' \
+curl 'http://172.16.52.27:8080/pd//options' \
  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
  -H 'Cache-Control: no-cache' \
  -H 'Connection: keep-alive' \
  -H 'Pragma: no-cache' \
- -H 'Referer: http://172.16.52.46:8000/docs' \
+ -H 'Referer: http://172.16.52.27:8080/pd//docs' \
  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36' \
  -H 'accept: application/json' \
  --insecure
