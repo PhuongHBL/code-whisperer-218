@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { lovable } from "@/integrations/lovable/index"
+import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import Col from "@/modules/common/components/Col"
 import Row from "@/modules/common/components/Row"
@@ -74,7 +75,6 @@ export default function LoginScreen() {
       })
 
       if (result.error) {
-        const { toast } = await import("sonner")
         toast.error("Google sign-in failed. Please try again.")
         return
       }
@@ -83,7 +83,6 @@ export default function LoginScreen() {
         return
       }
     } catch {
-      const { toast } = await import("sonner")
       toast.error("Google sign-in failed. Please try again.")
     } finally {
       setIsGoogleSubmitting(false)
