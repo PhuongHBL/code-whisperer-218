@@ -30,6 +30,13 @@ export default function TopNavBar({ user, onSignOut }: TopNavBarProps) {
             >
               Dashboard
             </NavLink>
+            <NavLink
+              to="/forward-pricing"
+              className="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors"
+              activeClassName="text-primary border-b-2 border-primary pb-0.5"
+            >
+              Market Pricing
+            </NavLink>
           </Row>
         </Row>
 
