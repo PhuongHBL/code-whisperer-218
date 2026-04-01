@@ -9,6 +9,7 @@ import {
 } from "react"
 import type { Session, User } from "@supabase/supabase-js"
 import { supabase } from "@/integrations/supabase/client"
+import { lovable } from "@/integrations/lovable"
 import { toast } from "sonner"
 
 const DEV_FAKE_AUTH_KEY = "signal_dev_fake_auth"
@@ -99,25 +100,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = session?.user ?? null
 
   const signInWithGoogle = useCallback(async () => {
-    const redirectTo = `${window.location.origin}/`
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo,
-        queryParams: {
-          prompt: "select_account",
-        },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/`,
+      extraParams: {
+        prompt: "select_account",
       },
     })
-    if (error) {
+    if (result.error) {
       toast.error("Google sign-in failed. Please try again.")
-      throw error
+      throw result.error
     }
-    if (data.url) {
-      window.location.assign(data.url)
+    if (result.redirected) {
       return
     }
-    toast.error("Google sign-in could not start. Check your Supabase Auth settings.")
+    toast.success("Signed in successfully.")
   }, [])
 
   const signInWithDevDemo = useCallback(() => {
