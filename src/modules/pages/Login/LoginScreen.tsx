@@ -255,24 +255,6 @@ export default function LoginScreen() {
 
           </Col>
 
-          {/* Bottom Links */}
-          <Row className="mt-12 items-center justify-between w-full px-4 text-[0.6875rem] font-bold text-on-surface-variant/40 tracking-widest uppercase">
-            <Row className="gap-6">
-              <a className="hover:text-primary transition-colors cursor-pointer">
-                <TextPrimary text="Privacy" className="" />
-              </a>
-              <a className="hover:text-primary transition-colors cursor-pointer">
-                <TextPrimary text="Terms" className="" />
-              </a>
-              <a className="hover:text-primary transition-colors cursor-pointer">
-                <TextPrimary text="System Status" className="" />
-              </a>
-            </Row>
-            <Row className="items-center gap-1">
-              <TextPrimary text="🌐" className="text-[0.875rem]" />
-              <TextPrimary text="AU / NZ Network" className="" />
-            </Row>
-          </Row>
         </Col>
       </Col>
     </Col>
