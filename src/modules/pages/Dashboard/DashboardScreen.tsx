@@ -11,11 +11,9 @@ export default function DashboardScreen() {
   const { user, isAuthLoading, signOut } = useAuth()
   const navigate = useNavigate()
 
-  // Redirect to login when not authenticated (after loading)
   const shouldRedirect = !isAuthLoading && !user
 
   if (shouldRedirect) {
-    // Using effect-free redirect via navigate in render is fine for guards
     void Promise.resolve().then(() => navigate("/", { replace: true }))
   }
 
@@ -26,7 +24,7 @@ export default function DashboardScreen() {
           <TopNavBar user={user} onSignOut={signOut} />
           <Box className="min-h-screen">
             <HeroHeader />
-            <Box className="px-8 py-10">
+            <Box className="px-4 md:px-8 py-6 md:py-10">
               <Col className="max-w-7xl mx-auto">
                 <PriceTrendsChart />
               </Col>

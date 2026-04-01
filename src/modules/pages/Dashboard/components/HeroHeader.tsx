@@ -6,9 +6,9 @@ import BaseButton from "@/modules/common/components/BaseButton"
 
 export default function HeroHeader() {
   return (
-    <Box className="px-8 py-12 bg-surface-container-low">
+    <Box className="px-4 md:px-8 py-8 md:py-12 bg-surface-container-low">
       <Col className="max-w-7xl mx-auto">
-        <Row className="flex-col md:flex-row md:items-end justify-between gap-6">
+        <Row className="flex-col lg:flex-row lg:items-end justify-between gap-6">
           <Col className="gap-1">
             {/* Breadcrumb */}
             <Row className="items-center gap-2 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-2">
@@ -18,7 +18,7 @@ export default function HeroHeader() {
             </Row>
             <TextPrimary
               text="Price Analytics Dashboard"
-              className="text-4xl md:text-5xl font-extrabold tracking-tighter text-primary"
+              className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tighter text-primary"
             />
             <TextPrimary
               text="Real-time market volatility and competitor positioning across ANZ regional hubs."
@@ -27,8 +27,8 @@ export default function HeroHeader() {
           </Col>
 
           {/* Filters */}
-          <Row className="flex-wrap items-center gap-3 bg-surface-container-lowest p-2 rounded-xl shadow-sm border border-outline-variant/10">
-            <Col className="px-3 border-r border-outline-variant/20">
+          <Row className="flex-wrap items-center gap-3 bg-surface-container-lowest p-2 rounded-xl shadow-sm border border-outline-variant/10 overflow-x-auto">
+            <Col className="px-3 border-r border-outline-variant/20 min-w-[120px]">
               <TextPrimary text="City Hub" className="text-[0.5625rem] uppercase tracking-tighter font-bold text-on-surface-variant/70" />
               <select className="bg-transparent border-none p-0 text-sm font-semibold text-primary focus:ring-0 cursor-pointer outline-none">
                 <option>Sydney, AU</option>
@@ -37,7 +37,7 @@ export default function HeroHeader() {
                 <option>Queenstown, NZ</option>
               </select>
             </Col>
-            <Col className="px-3 border-r border-outline-variant/20">
+            <Col className="px-3 border-r border-outline-variant/20 min-w-[120px]">
               <TextPrimary text="Car Category" className="text-[0.5625rem] uppercase tracking-tighter font-bold text-on-surface-variant/70" />
               <select className="bg-transparent border-none p-0 text-sm font-semibold text-primary focus:ring-0 cursor-pointer outline-none">
                 <option>Premium SUV</option>
@@ -46,7 +46,7 @@ export default function HeroHeader() {
                 <option>Electric Fleet</option>
               </select>
             </Col>
-            <Col className="px-3 pr-4">
+            <Col className="px-3 pr-4 min-w-[140px]">
               <TextPrimary text="Analysis Window" className="text-[0.5625rem] uppercase tracking-tighter font-bold text-on-surface-variant/70" />
               <Row className="items-center gap-2">
                 <TextPrimary text="calendar_month" className="material-symbols-outlined text-sm text-on-surface-variant" />
