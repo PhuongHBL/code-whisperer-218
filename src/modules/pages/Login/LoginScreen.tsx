@@ -1,8 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
-import { lovable } from "@/integrations/lovable/index"
-import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import Col from "@/modules/common/components/Col"
 import Row from "@/modules/common/components/Row"
@@ -11,41 +9,17 @@ import TextPrimary from "@/modules/common/components/TextPrimary"
 import BaseButton from "@/modules/common/components/BaseButton"
 import BaseInput from "@/modules/common/components/BaseInput"
 
-const PUBLISHED_APP_URL = "https://code-whisperer-218.lovable.app"
-
-const isPreviewEnvironment = () => {
-  const { hostname } = window.location
-  return hostname.includes("id-preview--") || hostname.endsWith(".lovableproject.com")
-}
-
-const getPublishedGoogleStartUrl = () => {
-  const url = new URL("/", PUBLISHED_APP_URL)
-  url.searchParams.set("oauth", "google")
-  return url.toString()
-}
-
-const clearOAuthIntent = () => {
-  const url = new URL(window.location.href)
-
-  if (!url.searchParams.has("oauth")) {
-    return
-  }
-
-  url.searchParams.delete("oauth")
-  window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}` || "/")
-}
-
 interface IForm {
   email: string
   password: string
 }
 
 export default function LoginScreen() {
-  const { user, isAuthLoading, session } = useAuth()
+  const { user, isAuthLoading, signInWithGoogle, signInWithDevDemo, isDevDemoLoginAvailable } =
+    useAuth()
   const navigate = useNavigate()
   const [isEmailSubmitting, setIsEmailSubmitting] = useState(false)
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
-  const hasAutoStartedGoogle = useRef(false)
 
   const form = useForm<IForm>({
     defaultValues: { email: "", password: "" },
@@ -61,49 +35,14 @@ export default function LoginScreen() {
 
   const handleGoogleSignIn = useCallback(async () => {
     setIsGoogleSubmitting(true)
-
     try {
-      if (isPreviewEnvironment()) {
-        window.location.assign(getPublishedGoogleStartUrl())
-        return
-      }
-
-      clearOAuthIntent()
-
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      })
-
-      if (result.error) {
-        toast.error("Google sign-in failed. Please try again.")
-        return
-      }
-
-      if (result.redirected) {
-        return
-      }
+      await signInWithGoogle()
     } catch {
-      toast.error("Google sign-in failed. Please try again.")
+      // Error toast already shown in signInWithGoogle
     } finally {
       setIsGoogleSubmitting(false)
     }
-  }, [])
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search)
-
-    if (
-      searchParams.get("oauth") !== "google" ||
-      hasAutoStartedGoogle.current ||
-      session ||
-      isAuthLoading
-    ) {
-      return
-    }
-
-    hasAutoStartedGoogle.current = true
-    void handleGoogleSignIn()
-  }, [handleGoogleSignIn, isAuthLoading, session])
+  }, [signInWithGoogle])
 
   return (
     <Col className="login-screen min-h-screen bg-surface font-body text-on-surface relative overflow-hidden">
@@ -186,6 +125,20 @@ export default function LoginScreen() {
                   />
                   <TextPrimary text="Sign in with Google" className="font-semibold text-on-surface text-sm" />
                 </BaseButton>
+
+                {isDevDemoLoginAvailable ? (
+                  <BaseButton
+                    variant="bordered"
+                    size="md"
+                    className="w-full py-[0.875rem] border-dashed border-outline-variant/60"
+                    onClick={() => signInWithDevDemo()}
+                  >
+                    <TextPrimary
+                      text="Continue as demo user"
+                      className="font-semibold text-on-surface-variant text-sm"
+                    />
+                  </BaseButton>
+                ) : null}
 
                 {/* Divider */}
                 <Row className="items-center gap-4 py-2">
