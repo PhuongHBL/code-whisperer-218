@@ -56,11 +56,7 @@ export default function TopNavBar({ user, onSignOut }: TopNavBarProps) {
 
         {/* Right: Icons + Avatar + Logout */}
         <Row className="items-center gap-3 md:gap-6">
-          <Row className="hidden sm:flex gap-4">
-            <TextPrimary text="notifications" className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" />
-            <TextPrimary text="help" className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" />
-          </Row>
-          <Row className="items-center gap-2 md:gap-3 sm:pl-4 sm:border-l border-outline-variant/20">
+          <Row className="items-center gap-2 md:gap-3">
             <Box className="h-8 w-8 rounded-full bg-surface-container-high overflow-hidden ring-2 ring-surface-container-lowest">
               {avatarUrl ? (
                 <img alt="User Profile" className="h-full w-full object-cover" src={avatarUrl} />
