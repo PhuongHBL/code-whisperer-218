@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { lovable } from "@/integrations/lovable/index"
+import { toast } from "sonner"
 import Col from "@/modules/common/components/Col"
 import Row from "@/modules/common/components/Row"
 import Box from "@/modules/common/components/Box"
@@ -87,9 +89,18 @@ export default function LoginScreen() {
                 variant="bordered"
                 size="md"
                 className="w-full py-[0.875rem]"
-                onClick={() => {
-                  // TODO: Move to useCallback if performance optimization needed
-                  console.log("Google sign-in")
+                onClick={async () => {
+                  try {
+                    const result = await lovable.auth.signInWithOAuth("google", {
+                      redirect_uri: window.location.origin,
+                    })
+                    if (result.error) {
+                      toast.error("Google sign-in failed. Please try again.")
+                    }
+                    if (result.redirected) return
+                  } catch {
+                    toast.error("Google sign-in failed. Please try again.")
+                  }
                 }}
               >
                 <img
