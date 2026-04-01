@@ -60,11 +60,11 @@ export default function TopNavBar({ user, onSignOut }: TopNavBarProps) {
 
         {/* Right: Icons + Avatar + Logout */}
         <Row className="items-center gap-2 md:gap-4">
-          <button className="hidden sm:flex material-symbols-outlined text-on-surface p-2 hover:bg-surface-container-low rounded-full transition-colors">
-            notifications
+          <button className="hidden sm:flex p-2 hover:bg-surface-container-low rounded-full transition-colors">
+            <span className="material-symbols-outlined text-on-surface">notifications</span>
           </button>
-          <button className="hidden sm:flex material-symbols-outlined text-on-surface p-2 hover:bg-surface-container-low rounded-full transition-colors">
-            help
+          <button className="hidden sm:flex p-2 hover:bg-surface-container-low rounded-full transition-colors">
+            <span className="material-symbols-outlined text-on-surface">help</span>
           </button>
           <Box className="h-8 w-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/20">
             {avatarUrl ? (
