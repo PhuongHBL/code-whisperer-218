@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import type { Session } from "@supabase/supabase-js"
 import { useForm } from "react-hook-form"
+import { useNavigate } from "react-router-dom"
 import { lovable } from "@/integrations/lovable/index"
-import { supabase } from "@/integrations/supabase/client"
-import { toast } from "sonner"
+import { useAuth } from "@/hooks/useAuth"
 import Col from "@/modules/common/components/Col"
 import Row from "@/modules/common/components/Row"
 import Box from "@/modules/common/components/Box"
 import TextPrimary from "@/modules/common/components/TextPrimary"
 import BaseButton from "@/modules/common/components/BaseButton"
 import BaseInput from "@/modules/common/components/BaseInput"
-import AuthenticatedState from "./components/AuthenticatedState"
 
 const PUBLISHED_APP_URL = "https://code-whisperer-218.lovable.app"
 
@@ -42,11 +40,10 @@ interface IForm {
 }
 
 export default function LoginScreen() {
-  const [isAuthLoading, setIsAuthLoading] = useState(true)
+  const { user, isAuthLoading, session } = useAuth()
+  const navigate = useNavigate()
   const [isEmailSubmitting, setIsEmailSubmitting] = useState(false)
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
-  const [isSigningOut, setIsSigningOut] = useState(false)
-  const [session, setSession] = useState<Session | null>(null)
   const hasAutoStartedGoogle = useRef(false)
 
   const form = useForm<IForm>({
@@ -54,27 +51,12 @@ export default function LoginScreen() {
     mode: "onChange",
   })
 
+  // Redirect authenticated users to dashboard
   useEffect(() => {
-    let isMounted = true
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!isMounted) return
-      setSession(data.session)
-      setIsAuthLoading(false)
-    })
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-      setIsAuthLoading(false)
-    })
-
-    return () => {
-      isMounted = false
-      subscription.unsubscribe()
+    if (!isAuthLoading && user) {
+      navigate("/dashboard", { replace: true })
     }
-  }, [])
+  }, [isAuthLoading, user, navigate])
 
   const handleGoogleSignIn = useCallback(async () => {
     setIsGoogleSubmitting(true)
@@ -92,6 +74,7 @@ export default function LoginScreen() {
       })
 
       if (result.error) {
+        const { toast } = await import("sonner")
         toast.error("Google sign-in failed. Please try again.")
         return
       }
@@ -100,6 +83,7 @@ export default function LoginScreen() {
         return
       }
     } catch {
+      const { toast } = await import("sonner")
       toast.error("Google sign-in failed. Please try again.")
     } finally {
       setIsGoogleSubmitting(false)
@@ -121,26 +105,6 @@ export default function LoginScreen() {
     hasAutoStartedGoogle.current = true
     void handleGoogleSignIn()
   }, [handleGoogleSignIn, isAuthLoading, session])
-
-  const handleSignOut = useCallback(async () => {
-    setIsSigningOut(true)
-
-    try {
-      const { error } = await supabase.auth.signOut()
-
-      if (error) {
-        throw error
-      }
-
-      toast.success("Signed out successfully.")
-    } catch {
-      toast.error("Sign out failed. Please try again.")
-    } finally {
-      setIsSigningOut(false)
-    }
-  }, [])
-
-  const currentUser = session?.user ?? null
 
   return (
     <Col className="login-screen min-h-screen bg-surface font-body text-on-surface relative overflow-hidden">
@@ -190,10 +154,7 @@ export default function LoginScreen() {
           </Col>
 
           {/* Login Card */}
-          {currentUser ? (
-            <AuthenticatedState user={currentUser} isSigningOut={isSigningOut} onSignOut={handleSignOut} />
-          ) : (
-            <Col className="w-full glass-panel rounded-xl shadow-[0_2rem_4rem_-0.75rem_rgba(0,10,30,0.1)] p-8 md:p-10 gap-8">
+          <Col className="w-full glass-panel rounded-xl shadow-[0_2rem_4rem_-0.75rem_rgba(0,10,30,0.1)] p-8 md:p-10 gap-8">
               {/* Heading */}
               <Col className="gap-1">
                 <TextPrimary
@@ -293,8 +254,7 @@ export default function LoginScreen() {
                 </form>
               </Col>
 
-            </Col>
-          )}
+          </Col>
 
           {/* Bottom Links */}
           <Row className="mt-12 items-center justify-between w-full px-4 text-[0.6875rem] font-bold text-on-surface-variant/40 tracking-widest uppercase">
