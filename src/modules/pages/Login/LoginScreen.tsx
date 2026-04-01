@@ -166,15 +166,6 @@ export default function LoginScreen() {
               </form>
             </Col>
 
-            {/* Footer */}
-            <Col className="items-center gap-6 pt-4">
-              <Row className="gap-1 text-on-surface-variant text-sm">
-                <TextPrimary text="Don't have an account?" className="" />
-                <a className="text-primary font-bold hover:underline cursor-pointer">
-                  <TextPrimary text="Request access" className="" />
-                </a>
-              </Row>
-            </Col>
           </Col>
 
           {/* Bottom Links */}
