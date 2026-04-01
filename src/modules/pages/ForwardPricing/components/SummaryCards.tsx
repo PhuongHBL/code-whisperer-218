@@ -19,9 +19,9 @@ const stats: StatCard[] = [
 
 export default function SummaryCards() {
   return (
-    <Row className="flex-col md:flex-row gap-4">
+    <Row className="flex-col sm:flex-row sm:flex-wrap gap-4">
       {stats.map((s) => (
-        <Col key={s.label} className={`flex-1 bg-surface-container-lowest p-5 rounded-lg shadow-sm border-l-4 ${s.borderColor}`}>
+        <Col key={s.label} className={`flex-1 min-w-[200px] bg-surface-container-lowest p-5 rounded-lg shadow-sm border-l-4 ${s.borderColor}`}>
           <TextPrimary text={s.label} className="text-[0.625rem] font-black uppercase tracking-widest text-on-surface-variant mb-1" />
           <Row className="items-end gap-2">
             <TextPrimary text={s.value} className="text-2xl font-black text-primary" />

@@ -27,17 +27,16 @@ export default function ForwardPricingScreen() {
         <>
           <TopNavBar user={user} onSignOut={signOut} />
           <Box className="min-h-screen">
-            <Col className="p-8 pt-6 gap-8 max-w-[1400px] mx-auto w-full">
+            <Col className="p-4 md:p-8 pt-4 md:pt-6 gap-6 md:gap-8 max-w-[1400px] mx-auto w-full">
               {/* Page header */}
               <Row className="flex-col md:flex-row justify-between md:items-end gap-4">
                 <Col className="gap-1">
-                  {/* Breadcrumb */}
                   <Row className="items-center gap-2 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">
                     <TextPrimary text="Intelligence" className="" />
                     <TextPrimary text="chevron_right" className="material-symbols-outlined text-[0.75rem]" />
                     <TextPrimary text="Market Pricing" className="text-primary" />
                   </Row>
-                  <TextPrimary text="Forward Market Pricing" className="text-3xl md:text-4xl font-black tracking-tighter text-primary" />
+                  <TextPrimary text="Forward Market Pricing" className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tighter text-primary" />
                   <TextPrimary text="Comprehensive competitor rate monitoring and market volatility analysis." className="text-sm text-on-surface-variant max-w-xl" />
                 </Col>
                 <BaseButton variant="filled" size="md" className="bg-primary-container hover:opacity-95 shadow-lg shadow-primary/20 gap-2 self-start md:self-auto">

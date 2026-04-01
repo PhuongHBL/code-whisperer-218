@@ -35,33 +35,17 @@ function SelectFilter({ label, icon = "expand_more", options, inputValue, isInpu
 
 export default function SearchFilters() {
   return (
-    <Box className="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
-      <Row className="flex-col md:flex-row flex-wrap gap-6">
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Market" options={["Australia Fleet", "New Zealand Fleet"]} />
-        </Box>
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Source Market" options={["All Channels", "Direct Website", "OTA Platform"]} />
-        </Box>
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Category Type" options={["Passenger Vehicles", "Commercial Fleet"]} />
-        </Box>
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Pickup Location" icon="location_on" isInput inputValue="Sydney Airport (SYD)" />
-        </Box>
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Dropoff Location" icon="location_on" isInput inputValue="Sydney Airport (SYD)" />
-        </Box>
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Category" icon="directions_car" options={["Compact SUV", "Luxury Sedan", "Economy Hatch"]} />
-        </Box>
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Duration" icon="schedule" options={["3 - 5 Days", "7 Days", "14+ Days"]} />
-        </Box>
-        <Box className="flex-1 min-w-[180px]">
-          <SelectFilter label="Pickup Date" isInput inputValue="2024-11-15" />
-        </Box>
-      </Row>
+    <Box className="bg-surface-container-lowest p-4 md:p-6 rounded-lg shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <SelectFilter label="Market" options={["Australia Fleet", "New Zealand Fleet"]} />
+        <SelectFilter label="Source Market" options={["All Channels", "Direct Website", "OTA Platform"]} />
+        <SelectFilter label="Category Type" options={["Passenger Vehicles", "Commercial Fleet"]} />
+        <SelectFilter label="Pickup Location" icon="location_on" isInput inputValue="Sydney Airport (SYD)" />
+        <SelectFilter label="Dropoff Location" icon="location_on" isInput inputValue="Sydney Airport (SYD)" />
+        <SelectFilter label="Category" icon="directions_car" options={["Compact SUV", "Luxury Sedan", "Economy Hatch"]} />
+        <SelectFilter label="Duration" icon="schedule" options={["3 - 5 Days", "7 Days", "14+ Days"]} />
+        <SelectFilter label="Pickup Date" isInput inputValue="2024-11-15" />
+      </div>
     </Box>
   )
 }
