@@ -28,9 +28,8 @@ export default function TopNavBar({ user, onSignOut }: TopNavBarProps) {
   const avatarUrl =
     user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture;
   const isAdmin = user?.user_metadata?.is_admin === true;
-  const pricingInsightsNavLabel = isAdmin
-    ? "Fleet Pricing Insights"
-    : "Consumer Price Intelligence";
+  /** Forward Pricing route is always Consumer Price Intelligence (including for admins). */
+  const forwardPricingNavLabel = "Consumer Price Intelligence";
   const homePath = !isLoggedIn ? "/" : isAdmin ? "/" : "/forward-pricing";
   const fullName =
     user &&
@@ -49,10 +48,10 @@ export default function TopNavBar({ user, onSignOut }: TopNavBarProps) {
             className="flex items-center shrink-0 rounded-lg focus-visible:outline focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             aria-label={
               !isLoggedIn
-                ? `Signal — ${pricingInsightsNavLabel}`
+                ? `Signal — ${forwardPricingNavLabel}`
                 : isAdmin
                   ? "Signal — Home"
-                  : `Signal — ${pricingInsightsNavLabel}`
+                  : `Signal — ${forwardPricingNavLabel}`
             }
           >
             <Box className="flex items-center rounded-md bg-white px-2 py-1 shadow-sm ring-1 ring-black/[0.06] dark:ring-white/15">
@@ -81,7 +80,7 @@ export default function TopNavBar({ user, onSignOut }: TopNavBarProps) {
               className="text-sm font-medium text-on-surface-variant hover:bg-surface-container-low px-3 py-1 rounded transition-colors"
               activeClassName="text-primary border-b-2 border-primary"
             >
-              {pricingInsightsNavLabel}
+              {forwardPricingNavLabel}
             </NavLink>
           </Row>
         </Row>
@@ -200,7 +199,7 @@ export default function TopNavBar({ user, onSignOut }: TopNavBarProps) {
             activeClassName="text-primary"
             onClick={() => setMobileMenuOpen(false)}
           >
-            {pricingInsightsNavLabel}
+            {forwardPricingNavLabel}
           </NavLink>
           {!isLoggedIn ? (
             <Link

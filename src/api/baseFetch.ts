@@ -1,10 +1,11 @@
-import { getApiAccessToken } from "@/api/authStorage"
+import { getApiAccessToken } from "@/api/authStorage";
 
 /**
  * Central API fetch — aligned with `src/docs/03-api-data-flow.md`, adapted for Vite (`import.meta.env`).
- * Defaults to the fleet API host so `/options` is never sent to the Vite dev server by mistake.
+ * Default base matches `src/docs/apiResponse/{dashboardOverview,options,predictMatrix}.md`:
+ * `{base}/dashboard/overview`, `{base}/options`, `{base}/predict/matrix`.
  */
-const DEFAULT_FLEET_API_BASE = "http://172.16.52.27:8080/pd/";
+const DEFAULT_FLEET_API_BASE = "https://ai.webapp01.hblab.dev/";
 
 export function getApiBaseUrl(): string {
   const base = import.meta.env.VITE_API_BASE_URL;
@@ -22,7 +23,7 @@ export async function baseFetch(
   const normalized = path.startsWith("/") ? path : `/${path}`;
   const url = root ? `${root}${normalized}` : normalized;
 
-  const token = getApiAccessToken()
+  const token = getApiAccessToken();
   return fetch(url, {
     ...init,
     headers: {

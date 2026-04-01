@@ -221,270 +221,272 @@ export default function PriceCalendar({
           ) : (
             <Row className="min-w-full justify-center">
               <Row className="gap-1.5 md:gap-2 w-max items-stretch">
-            {days.map((d) => {
-              const dayYmd =
-                normalizeDateKeyToYmd(d.date) ??
-                (/^\d{4}-\d{2}-\d{2}$/.test(String(d.date).trim())
-                  ? String(d.date).trim()
-                  : null);
-              const isPast =
-                dayYmd != null &&
-                /^\d{4}-\d{2}-\d{2}$/.test(dayYmd) &&
-                dayYmd < todayYmd;
+                {days.map((d) => {
+                  const dayYmd =
+                    normalizeDateKeyToYmd(d.date) ??
+                    (/^\d{4}-\d{2}-\d{2}$/.test(String(d.date).trim())
+                      ? String(d.date).trim()
+                      : null);
+                  const isPast =
+                    dayYmd != null &&
+                    /^\d{4}-\d{2}-\d{2}$/.test(dayYmd) &&
+                    dayYmd < todayYmd;
 
-              const parsedLocal =
-                dayYmd != null ? parseLocalYmd(dayYmd) : null;
-              const isSelected = dayYmd != null && dayYmd === pickupYmd;
-              const dayLabel = parsedLocal
-                ? format(parsedLocal, "EEE")
-                : d.date;
-              const dateLine = parsedLocal
-                ? format(parsedLocal, "dd/MM/yyyy")
-                : d.date;
+                  const parsedLocal =
+                    dayYmd != null ? parseLocalYmd(dayYmd) : null;
+                  const isSelected = dayYmd != null && dayYmd === pickupYmd;
+                  const dayLabel = parsedLocal
+                    ? format(parsedLocal, "EEE")
+                    : d.date;
+                  const dateLine = parsedLocal
+                    ? format(parsedLocal, "dd/MM/yyyy")
+                    : d.date;
 
-              const hi =
-                typeof d.highest_price === "number" &&
-                Number.isFinite(d.highest_price)
-                  ? d.highest_price
-                  : null;
-              const hiCo =
-                typeof d.highest_company === "string"
-                  ? d.highest_company.trim()
-                  : "";
+                  const hi =
+                    typeof d.highest_price === "number" &&
+                    Number.isFinite(d.highest_price)
+                      ? d.highest_price
+                      : null;
+                  const hiCo =
+                    typeof d.highest_company === "string"
+                      ? d.highest_company.trim()
+                      : "";
 
-              const holidays = mergeUniqueNames([
-                dayYmd != null
-                  ? (holidaysFromContext.get(dayYmd) ?? [])
-                  : [],
-                holidaysList(d.public_holidays),
-              ]);
-              const holidayTitle = holidays.join(" · ");
+                  const holidays = mergeUniqueNames([
+                    dayYmd != null
+                      ? (holidaysFromContext.get(dayYmd) ?? [])
+                      : [],
+                    holidaysList(d.public_holidays),
+                  ]);
+                  const holidayTitle = holidays.join(" · ");
 
-              const lowPriceCls = isPast
-                ? "text-on-surface-variant"
-                : isSelected
-                  ? "text-green-700 dark:text-green-400"
-                  : "text-green-600 dark:text-green-400";
-              const highPriceCls = isPast
-                ? "text-on-surface-variant"
-                : isSelected
-                  ? "text-red-700 dark:text-red-400"
-                  : "text-red-600 dark:text-red-400";
+                  const lowPriceCls = isPast
+                    ? "text-on-surface-variant"
+                    : isSelected
+                      ? "text-green-700 dark:text-green-400"
+                      : "text-green-600 dark:text-green-400";
+                  const highPriceCls = isPast
+                    ? "text-on-surface-variant"
+                    : isSelected
+                      ? "text-red-700 dark:text-red-400"
+                      : "text-red-600 dark:text-red-400";
 
-              const lowCo = d.cheapest_company?.trim() ?? "";
-              const interactive = !isPast;
+                  const lowCo = d.cheapest_company?.trim() ?? "";
+                  const interactive = !isPast;
 
-              const ariaPrices = `Cheapest ${priceLine(sym, d.cheapest_price, 0)} ${d.cheapest_company}. ${
-                hi != null && hiCo
-                  ? `Highest ${priceLine(sym, hi, 0)} ${hiCo}.`
-                  : hi != null
-                    ? `Highest ${priceLine(sym, hi, 0)}.`
-                    : ""
-              }${holidayTitle ? ` Holidays: ${holidayTitle}.` : ""}`;
+                  const ariaPrices = `Cheapest ${priceLine(sym, d.cheapest_price, 0)} ${d.cheapest_company}. ${
+                    hi != null && hiCo
+                      ? `Highest ${priceLine(sym, hi, 0)} ${hiCo}.`
+                      : hi != null
+                        ? `Highest ${priceLine(sym, hi, 0)}.`
+                        : ""
+                  }${holidayTitle ? ` Holidays: ${holidayTitle}.` : ""}`;
 
-              const muted = isPast
-                ? "text-on-surface-variant"
-                : isSelected
-                  ? "text-primary font-black"
-                  : "text-on-surface-variant";
+                  const muted = isPast
+                    ? "text-on-surface-variant"
+                    : isSelected
+                      ? "text-primary font-black"
+                      : "text-on-surface-variant";
 
-              const strong = isPast
-                ? "text-on-surface-variant"
-                : isSelected
-                  ? "text-primary font-black"
-                  : "text-on-surface";
+                  const strong = isPast
+                    ? "text-on-surface-variant"
+                    : isSelected
+                      ? "text-primary font-black"
+                      : "text-on-surface";
 
-              const emitDate =
-                dayYmd != null && /^\d{4}-\d{2}-\d{2}$/.test(dayYmd)
-                  ? dayYmd
-                  : d.date;
+                  const emitDate =
+                    dayYmd != null && /^\d{4}-\d{2}-\d{2}$/.test(dayYmd)
+                      ? dayYmd
+                      : d.date;
 
-              return (
-                <Col
-                  key={dayYmd ?? d.date}
-                  role={interactive ? "button" : undefined}
-                  tabIndex={interactive ? 0 : undefined}
-                  aria-disabled={isPast}
-                  aria-label={
-                    isPast
-                      ? `${dayLabel} ${dateLine}, past, not selectable`
-                      : `${dayLabel} ${dateLine}. ${ariaPrices} Select as pickup.`
-                  }
-                  title={
-                    holidayTitle ? `${dateLine}. ${holidayTitle}` : undefined
-                  }
-                  onClick={() => {
-                    if (interactive) onPickupDateChange(emitDate);
-                  }}
-                  onKeyDown={(e) => {
-                    if (!interactive) return;
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      onPickupDateChange(emitDate);
-                    }
-                  }}
-                  className={`min-w-[7.25rem] sm:min-w-[7.75rem] shrink-0 rounded-lg transition-all ${
-                    isPast
-                      ? "opacity-45 cursor-not-allowed border border-outline-variant/10 bg-surface-container-low/60 pointer-events-none px-1.5 py-1"
-                      : `cursor-pointer px-1.5 py-1.5 md:px-2 md:py-1.5 ${
-                          isSelected
-                            ? "relative z-[1] border border-outline-variant/25 bg-[hsl(264.67deg_5.54%_71.3%_/_40%)] shadow-md"
-                            : "border border-outline-variant/25 hover:border-primary/35 bg-surface-container-lowest"
-                        }`
-                  }`}
-                >
-                  <Row className="items-baseline justify-between gap-0.5 border-b border-outline-variant/15 pb-0.5 mb-0.5">
-                    <TextPrimary
-                      text={dayLabel}
-                      className={`text-[0.5rem] font-black uppercase tracking-tight ${muted}`}
-                    />
-                    <TextPrimary
-                      text={dateLine}
-                      className={`text-[0.5rem] font-bold tabular-nums leading-none ${strong}`}
-                    />
-                  </Row>
+                  return (
+                    <Col
+                      key={dayYmd ?? d.date}
+                      role={interactive ? "button" : undefined}
+                      tabIndex={interactive ? 0 : undefined}
+                      aria-disabled={isPast}
+                      aria-label={
+                        isPast
+                          ? `${dayLabel} ${dateLine}, past, not selectable`
+                          : `${dayLabel} ${dateLine}. ${ariaPrices} Select as pickup.`
+                      }
+                      title={
+                        holidayTitle
+                          ? `${dateLine}. ${holidayTitle}`
+                          : undefined
+                      }
+                      onClick={() => {
+                        if (interactive) onPickupDateChange(emitDate);
+                      }}
+                      onKeyDown={(e) => {
+                        if (!interactive) return;
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onPickupDateChange(emitDate);
+                        }
+                      }}
+                      className={`min-w-[7.25rem] sm:min-w-[7.75rem] shrink-0 rounded-lg transition-all ${
+                        isPast
+                          ? "opacity-45 cursor-not-allowed border border-outline-variant/10 bg-surface-container-low/60 pointer-events-none px-1.5 py-1"
+                          : `cursor-pointer px-1.5 py-1.5 md:px-2 md:py-1.5 ${
+                              isSelected
+                                ? "relative z-[1] border border-outline-variant/25 bg-[hsl(264.67deg_5.54%_71.3%_/_40%)] shadow-md"
+                                : "border border-outline-variant/25 hover:border-primary/35 bg-surface-container-lowest"
+                            }`
+                      }`}
+                    >
+                      <Row className="items-baseline justify-between gap-0.5 border-b border-outline-variant/15 pb-0.5 mb-0.5">
+                        <TextPrimary
+                          text={dayLabel}
+                          className={`text-[0.5rem] font-black uppercase tracking-tight ${muted}`}
+                        />
+                        <TextPrimary
+                          text={dateLine}
+                          className={`text-[0.5rem] font-bold tabular-nums leading-none ${strong}`}
+                        />
+                      </Row>
 
-                  <Col className="gap-0.5">
-                    <Row className="items-center gap-0.5 min-w-0">
-                      <span
-                        className={`text-[0.5rem] font-black shrink-0 w-2.5 ${
-                          isPast
-                            ? "text-on-surface-variant"
-                            : isSelected
-                              ? "text-primary/55"
-                              : "text-on-surface-variant"
-                        }`}
-                      >
-                        L
-                      </span>
-                      {isPast ? (
-                        <span
-                          className={`text-[0.5625rem] font-black tabular-nums ${lowPriceCls}`}
-                        >
-                          {priceLine(sym, d.cheapest_price, 0)}
-                        </span>
-                      ) : (
-                        <Tooltip delayDuration={200}>
-                          <TooltipTrigger asChild>
+                      <Col className="gap-0.5">
+                        <Row className="items-center gap-0.5 min-w-0">
+                          <span
+                            className={`text-[0.5rem] font-black shrink-0 w-2.5 ${
+                              isPast
+                                ? "text-on-surface-variant"
+                                : isSelected
+                                  ? "text-primary/55"
+                                  : "text-on-surface-variant"
+                            }`}
+                          >
+                            L
+                          </span>
+                          {isPast ? (
                             <span
                               className={`text-[0.5625rem] font-black tabular-nums ${lowPriceCls}`}
                             >
                               {priceLine(sym, d.cheapest_price, 0)}
                             </span>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            sideOffset={6}
-                            className="max-w-[18rem] text-xs font-semibold"
-                          >
-                            {lowCo
-                              ? `${firstCompanyName(lowCo)} · ${priceLine(sym, d.cheapest_price, 0)}`
-                              : priceLine(sym, d.cheapest_price, 0)}
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </Row>
+                          ) : (
+                            <Tooltip delayDuration={200}>
+                              <TooltipTrigger asChild>
+                                <span
+                                  className={`text-[0.5625rem] font-black tabular-nums ${lowPriceCls}`}
+                                >
+                                  {priceLine(sym, d.cheapest_price, 0)}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="top"
+                                sideOffset={6}
+                                className="max-w-[18rem] text-xs font-semibold"
+                              >
+                                {lowCo
+                                  ? `${firstCompanyName(lowCo)} · ${priceLine(sym, d.cheapest_price, 0)}`
+                                  : priceLine(sym, d.cheapest_price, 0)}
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </Row>
 
-                    {hi != null ? (
-                      <Row className="items-center gap-0.5 min-w-0">
-                        <span
-                          className={`text-[0.5rem] font-black shrink-0 w-2.5 ${
-                            isPast
-                              ? "text-on-surface-variant"
-                              : isSelected
-                                ? "text-primary/55"
-                                : "text-on-surface-variant"
-                          }`}
-                        >
-                          H
-                        </span>
-                        {isPast ? (
-                          <span
-                            className={`text-[0.5625rem] font-black tabular-nums ${highPriceCls}`}
-                          >
-                            {priceLine(sym, hi, 0)}
-                          </span>
-                        ) : (
-                          <Tooltip delayDuration={200}>
-                            <TooltipTrigger asChild>
+                        {hi != null ? (
+                          <Row className="items-center gap-0.5 min-w-0">
+                            <span
+                              className={`text-[0.5rem] font-black shrink-0 w-2.5 ${
+                                isPast
+                                  ? "text-on-surface-variant"
+                                  : isSelected
+                                    ? "text-primary/55"
+                                    : "text-on-surface-variant"
+                              }`}
+                            >
+                              H
+                            </span>
+                            {isPast ? (
                               <span
                                 className={`text-[0.5625rem] font-black tabular-nums ${highPriceCls}`}
                               >
                                 {priceLine(sym, hi, 0)}
                               </span>
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              sideOffset={6}
-                              className="max-w-[18rem] text-xs font-semibold"
-                            >
-                              {hiCo
-                                ? `${firstCompanyName(hiCo)} · ${priceLine(sym, hi, 0)}`
-                                : priceLine(sym, hi, 0)}
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                      </Row>
-                    ) : null}
+                            ) : (
+                              <Tooltip delayDuration={200}>
+                                <TooltipTrigger asChild>
+                                  <span
+                                    className={`text-[0.5625rem] font-black tabular-nums ${highPriceCls}`}
+                                  >
+                                    {priceLine(sym, hi, 0)}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="top"
+                                  sideOffset={6}
+                                  className="max-w-[18rem] text-xs font-semibold"
+                                >
+                                  {hiCo
+                                    ? `${firstCompanyName(hiCo)} · ${priceLine(sym, hi, 0)}`
+                                    : priceLine(sym, hi, 0)}
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </Row>
+                        ) : null}
 
-                    {holidays.length > 0 ? (
-                      <Row
-                        className={`mt-0.5 items-start gap-0.5 min-w-0 rounded px-0.5 py-0.5 ${
-                          isPast
-                            ? "bg-transparent"
-                            : isSelected
-                              ? "bg-primary/10"
-                              : "bg-amber-500/12"
-                        }`}
-                        title={holidayTitle}
-                      >
-                        <TextPrimary
-                          text="celebration"
-                          className={`material-symbols-outlined text-[0.625rem] shrink-0 mt-px ${
-                            isPast
-                              ? "text-on-surface-variant"
-                              : isSelected
-                                ? "text-primary/80"
-                                : "text-amber-800 dark:text-amber-300"
-                          }`}
-                        />
-                        <Col className="min-w-0 flex-1 gap-0 leading-tight">
-                          {holidays.map((hn, hi) => (
-                            <span
-                              key={`${dayYmd ?? d.date}-${hi}-${hn}`}
-                              className={`block text-[0.5rem] font-bold leading-snug break-words ${
+                        {holidays.length > 0 ? (
+                          <Row
+                            className={`mt-0.5 items-start gap-0.5 min-w-0 rounded px-0.5 py-0.5 ${
+                              isPast
+                                ? "bg-transparent"
+                                : isSelected
+                                  ? "bg-primary/10"
+                                  : "bg-amber-500/12"
+                            }`}
+                            title={holidayTitle}
+                          >
+                            <TextPrimary
+                              text="celebration"
+                              className={`material-symbols-outlined text-[0.625rem] shrink-0 mt-px ${
                                 isPast
                                   ? "text-on-surface-variant"
                                   : isSelected
-                                    ? "text-on-surface"
-                                    : "text-amber-900 dark:text-amber-200"
+                                    ? "text-primary/80"
+                                    : "text-amber-800 dark:text-amber-300"
                               }`}
-                              title={hn}
+                            />
+                            <Col className="min-w-0 flex-1 gap-0 leading-tight">
+                              {holidays.map((hn, hi) => (
+                                <span
+                                  key={`${dayYmd ?? d.date}-${hi}-${hn}`}
+                                  className={`block text-[0.5rem] font-bold leading-snug break-words ${
+                                    isPast
+                                      ? "text-on-surface-variant"
+                                      : isSelected
+                                        ? "text-on-surface"
+                                        : "text-amber-900 dark:text-amber-200"
+                                  }`}
+                                  title={hn}
+                                >
+                                  {truncateLabel(hn, 22)}
+                                </span>
+                              ))}
+                            </Col>
+                          </Row>
+                        ) : (
+                          <Row className="mt-0.5 min-w-0 px-0.5 py-0.5">
+                            <span
+                              className={`text-[0.5rem] font-medium leading-tight ${
+                                isPast
+                                  ? "text-on-surface-variant/50"
+                                  : isSelected
+                                    ? "text-on-surface-variant/65"
+                                    : "text-on-surface-variant/55"
+                              }`}
                             >
-                              {truncateLabel(hn, 22)}
+                              No public holiday
                             </span>
-                          ))}
-                        </Col>
-                      </Row>
-                    ) : (
-                      <Row className="mt-0.5 min-w-0 px-0.5 py-0.5">
-                        <span
-                          className={`text-[0.5rem] font-medium leading-tight ${
-                            isPast
-                              ? "text-on-surface-variant/50"
-                              : isSelected
-                                ? "text-on-surface-variant/65"
-                                : "text-on-surface-variant/55"
-                          }`}
-                        >
-                          No public holiday
-                        </span>
-                      </Row>
-                    )}
-                  </Col>
-                </Col>
-              );
-            })}
+                          </Row>
+                        )}
+                      </Col>
+                    </Col>
+                  );
+                })}
               </Row>
             </Row>
           )}

@@ -24,7 +24,8 @@ export interface DashboardOverviewSummary {
 }
 
 export interface DashboardOverviewCalendarDay {
-  date: string
+  /** API may return ISO string, datetime, or unix-style number — coerce in UI when needed. */
+  date: string | number
   is_selected: boolean
   cheapest_price: number
   cheapest_company: string
@@ -50,7 +51,8 @@ export interface DashboardOverviewCompetitor {
   competitor: string
   category?: string
   location?: string
-  date?: string
+  /** API may return ISO / datetime string or numeric timestamp — normalize to `yyyy-MM-dd` for tools like microFish. */
+  date?: string | number
   price_per_day: number
   total_rate: number
   confidence: DashboardOverviewCompetitorConfidence
@@ -101,7 +103,7 @@ export interface DashboardOverviewContext {
 export interface DashboardOverviewResponse {
   location: string
   car_category: string
-  pickup_date: string
+  pickup_date: string | number
   rental_duration: number
   currency: string
   model_used: string

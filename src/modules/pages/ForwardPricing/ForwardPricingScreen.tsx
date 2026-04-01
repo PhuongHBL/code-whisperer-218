@@ -1,25 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import Col from "@/modules/common/components/Col";
 import Row from "@/modules/common/components/Row";
 import Box from "@/modules/common/components/Box";
 import TextPrimary from "@/modules/common/components/TextPrimary";
-import BaseButton from "@/modules/common/components/BaseButton";
 import TopNavBar from "@/modules/pages/Dashboard/components/TopNavBar";
 import SummaryCards from "./components/SummaryCards";
 import OverviewContextPanel from "./components/OverviewContextPanel";
+import ForwardPricingPageSkeleton from "./components/ForwardPricingPageSkeleton";
 import SearchFilters, {
   type ForwardPricingFilterValues,
 } from "./components/SearchFilters";
 import PriceCalendar from "./components/PriceCalendar";
 import CompetitorsTable from "./components/CompetitorsTable";
 import { useQueryFleetOptions } from "@/api/useQueryFleetOptions";
-import {
-  QUERY_KEY_DASHBOARD_OVERVIEW_PREFIX,
-  useQueryDashboardOverview,
-} from "@/api/useQueryDashboardOverview";
+import { useQueryDashboardOverview } from "@/api/useQueryDashboardOverview";
 import type { DashboardOverviewRequest } from "@/api/types/dashboardOverview";
 
 /** Sent on every overview request; UI control was removed but API still expects it. */
@@ -58,8 +54,8 @@ function buildOverviewBody(
 
 export default function ForwardPricingScreen() {
   const { user, signOut } = useAuth();
-  const queryClient = useQueryClient();
-  const { data: fleetOptions } = useQueryFleetOptions();
+  const { data: fleetOptions, isLoading: isFleetOptionsLoading } =
+    useQueryFleetOptions();
 
   const [filterValues, setFilterValues] = useState<ForwardPricingFilterValues>(
     () => ({
@@ -107,11 +103,10 @@ export default function ForwardPricingScreen() {
   };
 
   const overviewRefreshing = isFetching && isPlaceholderData;
+  const overviewAwaitingFirstPayload =
+    overviewBody != null && isPending && overviewData === undefined;
 
-  const isAdmin = user?.user_metadata?.is_admin === true;
-  const marketPricingIntelLabel = isAdmin
-    ? "Fleet Pricing Insights"
-    : "Consumer Price Intelligence";
+  const marketPricingIntelLabel = "Consumer Price Intelligence";
 
   return (
     <Col className="min-h-screen bg-surface text-on-surface">
@@ -146,12 +141,6 @@ export default function ForwardPricingScreen() {
                       className="text-xs text-destructive max-w-xl mt-1"
                     />
                   ) : null}
-                  {isPending && overviewBody && !overviewData ? (
-                    <TextPrimary
-                      text="Loading overview…"
-                      className="text-[0.6875rem] text-on-surface-variant mt-1"
-                    />
-                  ) : null}
                   {overviewRefreshing ? (
                     <TextPrimary
                       text="Refreshing overview…"
@@ -178,20 +167,36 @@ export default function ForwardPricingScreen() {
                 </BaseButton> */}
               </Row>
 
-              <SummaryCards overview={overviewData ?? null} />
-              <OverviewContextPanel overview={overviewData ?? null} />
-              <SearchFilters
-                values={filterValues}
-                onValuesChange={patchFilters}
-              />
-              <PriceCalendar
-                overview={overviewData ?? null}
-                pickupDate={filterValues.pickupDate}
-                onPickupDateChange={(pickupDate) =>
-                  patchFilters({ pickupDate })
-                }
-              />
-              <CompetitorsTable overview={overviewData ?? null} />
+              {isFleetOptionsLoading ? (
+                <ForwardPricingPageSkeleton variant="full" />
+              ) : overviewAwaitingFirstPayload ? (
+                <ForwardPricingPageSkeleton
+                  variant="below-filters"
+                  filterSlot={
+                    <SearchFilters
+                      values={filterValues}
+                      onValuesChange={patchFilters}
+                    />
+                  }
+                />
+              ) : (
+                <>
+                  <SummaryCards overview={overviewData ?? null} />
+                  <OverviewContextPanel overview={overviewData ?? null} />
+                  <SearchFilters
+                    values={filterValues}
+                    onValuesChange={patchFilters}
+                  />
+                  <PriceCalendar
+                    overview={overviewData ?? null}
+                    pickupDate={filterValues.pickupDate}
+                    onPickupDateChange={(pickupDate) =>
+                      patchFilters({ pickupDate })
+                    }
+                  />
+                  <CompetitorsTable overview={overviewData ?? null} />
+                </>
+              )}
             </Col>
           </Box>
       </>

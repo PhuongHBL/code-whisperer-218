@@ -101,7 +101,7 @@ export default function HeroHeader() {
             <TextPrimary text="Analytics" className="text-primary" />
           </Row>
           <TextPrimary
-            text="Price Analytics Dashboard"
+            text="Fleet Pricing Insights  "
             className="text-xl md:text-2xl lg:text-[1.625rem] font-black tracking-tight text-primary leading-snug"
           />
           <TextPrimary
