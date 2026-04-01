@@ -22,15 +22,15 @@ export default function DashboardScreen() {
       {user ? (
         <>
           <TopNavBar user={user} onSignOut={signOut} />
-          <Box className="min-h-screen">
+          <Col className="flex-1">
             <HeroHeader />
-            <Box className="px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10">
+            <Box className="px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-10">
               <Col className="max-w-7xl mx-auto">
                 <PriceTrendsChart />
               </Col>
             </Box>
             <FooterBranding />
-          </Box>
+          </Col>
         </>
       ) : null}
     </Col>
