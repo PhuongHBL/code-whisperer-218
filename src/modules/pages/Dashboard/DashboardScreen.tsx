@@ -6,6 +6,7 @@ import TopNavBar from "./components/TopNavBar"
 import HeroHeader from "./components/HeroHeader"
 import PriceTrendsChart from "./components/PriceTrendsChart"
 import FooterBranding from "./components/FooterBranding"
+import { FleetFiltersProvider } from "./FleetFiltersContext"
 
 export default function DashboardScreen() {
   const { user, isAuthLoading, signOut } = useAuth()
@@ -22,15 +23,17 @@ export default function DashboardScreen() {
       {user ? (
         <>
           <TopNavBar user={user} onSignOut={signOut} />
-          <Col className="flex-1">
-            <HeroHeader />
-            <Box className="px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-10">
-              <Col className="max-w-7xl mx-auto">
-                <PriceTrendsChart />
-              </Col>
-            </Box>
-            <FooterBranding />
-          </Col>
+          <FleetFiltersProvider>
+            <Col className="flex-1">
+              <HeroHeader />
+              <Box className="px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-10">
+                <Col className="max-w-7xl mx-auto">
+                  <PriceTrendsChart />
+                </Col>
+              </Box>
+              <FooterBranding />
+            </Col>
+          </FleetFiltersProvider>
         </>
       ) : null}
     </Col>
