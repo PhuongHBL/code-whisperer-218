@@ -12,7 +12,7 @@ export default function HeroHeader() {
           {/* Breadcrumb */}
           <Row className="items-center gap-2 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">
             <TextPrimary text="Intelligence" className="" />
-            <TextPrimary text="chevron_right" className="material-symbols-outlined text-[0.75rem]" />
+            <span className="material-symbols-outlined text-[0.75rem]">arrow_forward</span>
             <TextPrimary text="Analytics" className="text-primary" />
           </Row>
           <TextPrimary
