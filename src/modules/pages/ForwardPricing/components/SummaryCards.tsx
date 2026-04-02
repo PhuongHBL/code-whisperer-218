@@ -1,7 +1,22 @@
 import Row from "@/modules/common/components/Row"
 import Col from "@/modules/common/components/Col"
 import TextPrimary from "@/modules/common/components/TextPrimary"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import type { DashboardOverviewResponse } from "@/api/types/dashboardOverview"
+
+/** Explanations aligned with the forward-pricing dashboard API (single overview call). */
+const SUMMARY_TITLE_TOOLTIPS = {
+  avgDailyRate:
+    "Median price across all competitors for the selected pickup date — more robust than the mean when one outlier brand skews the distribution.",
+  topDemandHub:
+    "Demand drivers use a rule-based list: season, weekend, public/school holidays, and events.",
+  lowestRate: "Cheapest competitor prediction for this pickup date and rental duration.",
+  highestRate: "Most expensive competitor prediction for this pickup date and rental duration.",
+} as const
 
 function currencySym(currency: string) {
   return currency === "USD" ? "$" : `${currency} `
@@ -9,6 +24,8 @@ function currencySym(currency: string) {
 
 interface StatCard {
   label: string
+  /** Shown on hover/focus for the title (API field semantics). */
+  titleTooltip: string
   value: string
   badge: string
   badgeColor: string
@@ -23,6 +40,7 @@ interface StatCard {
 const fallbackStats: StatCard[] = [
   {
     label: "Avg daily rate",
+    titleTooltip: SUMMARY_TITLE_TOOLTIPS.avgDailyRate,
     value: "—",
     badge: "—",
     badgeColor: "text-on-surface-variant",
@@ -32,6 +50,7 @@ const fallbackStats: StatCard[] = [
   },
   {
     label: "Top demand hub",
+    titleTooltip: SUMMARY_TITLE_TOOLTIPS.topDemandHub,
     value: "—",
     badge: "location_on",
     badgeColor: "text-violet-600 dark:text-violet-400",
@@ -42,6 +61,7 @@ const fallbackStats: StatCard[] = [
   },
   {
     label: "Lowest rate",
+    titleTooltip: SUMMARY_TITLE_TOOLTIPS.lowestRate,
     value: "—",
     badge: "—",
     badgeColor: "text-on-surface-variant",
@@ -51,6 +71,7 @@ const fallbackStats: StatCard[] = [
   },
   {
     label: "Highest rate",
+    titleTooltip: SUMMARY_TITLE_TOOLTIPS.highestRate,
     value: "—",
     badge: "—",
     badgeColor: "text-on-surface-variant",
@@ -68,6 +89,7 @@ function buildStats(overview: DashboardOverviewResponse): StatCard[] {
   return [
     {
       label: "Avg daily rate",
+      titleTooltip: SUMMARY_TITLE_TOOLTIPS.avgDailyRate,
       value: `${sym}${summary.avg_daily_rate.toFixed(2)}`,
       badge: `${summary.competitor_count} competitors`,
       badgeColor: "text-sky-800/90 dark:text-sky-300/90 font-black",
@@ -77,6 +99,7 @@ function buildStats(overview: DashboardOverviewResponse): StatCard[] {
     },
     {
       label: "Top demand hub",
+      titleTooltip: SUMMARY_TITLE_TOOLTIPS.topDemandHub,
       value: hub,
       badge: "location_on",
       badgeColor: "text-violet-600 dark:text-violet-400",
@@ -87,6 +110,7 @@ function buildStats(overview: DashboardOverviewResponse): StatCard[] {
     },
     {
       label: "Lowest rate",
+      titleTooltip: SUMMARY_TITLE_TOOLTIPS.lowestRate,
       value: `${sym}${summary.lowest_rate.price.toFixed(2)}`,
       badge: summary.lowest_rate.competitor,
       badgeColor: "text-emerald-800/85 dark:text-emerald-400/90 font-bold",
@@ -96,6 +120,7 @@ function buildStats(overview: DashboardOverviewResponse): StatCard[] {
     },
     {
       label: "Highest rate",
+      titleTooltip: SUMMARY_TITLE_TOOLTIPS.highestRate,
       value: `${sym}${summary.highest_rate.price.toFixed(2)}`,
       badge: summary.highest_rate.competitor,
       badgeColor: "text-orange-800/85 dark:text-orange-400/90 font-bold",
@@ -120,7 +145,25 @@ export default function SummaryCards({ overview }: SummaryCardsProps) {
           key={s.label}
           className={`flex-1 min-w-[180px] sm:min-w-[200px] p-4 rounded-lg shadow-sm border-l-4 ${s.borderColor} ${s.cardBgClass}`}
         >
-          <TextPrimary text={s.label} className="text-[0.5625rem] font-black uppercase tracking-widest text-on-surface-variant mb-0.5" />
+          <Tooltip delayDuration={200}>
+            <TooltipTrigger asChild>
+              <span
+                className="mb-0.5 inline-block max-w-full cursor-default border-b border-dotted border-on-surface-variant/40"
+                tabIndex={0}
+              >
+                <TextPrimary
+                  text={s.label}
+                  className="text-[0.5625rem] font-black uppercase tracking-widest text-on-surface-variant"
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className="max-w-[18rem] text-xs leading-relaxed"
+            >
+              {s.titleTooltip}
+            </TooltipContent>
+          </Tooltip>
           <Row className="items-end gap-1.5">
             <TextPrimary
               text={s.value}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,6 +28,7 @@ export default function LoginScreen() {
   const navigate = useNavigate();
   const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<IForm>({
     defaultValues: { email: "", password: "" },
@@ -191,16 +193,33 @@ export default function LoginScreen() {
                         text="Password"
                         className="text-xs font-bold text-on-surface-variant uppercase tracking-wider"
                       />
-                      <a className="text-[0.6875rem] font-semibold text-surface-tint hover:underline cursor-pointer">
+                      {/* <a className="text-[0.6875rem] font-semibold text-surface-tint hover:underline cursor-pointer">
                         <TextPrimary text="Forgot password?" className="" />
-                      </a>
+                      </a> */}
                     </Row>
-                    <input
-                      type="password"
-                      placeholder="••••••••"
-                      className="w-full bg-surface-container-low border-0 ring-1 ring-outline-variant/50 focus:ring-2 focus:ring-surface-tint rounded-lg py-3 px-4 text-on-surface text-sm transition-all outline-none"
-                      {...form.register("password", { required: true })}
-                    />
+                    <Box className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        className="w-full bg-surface-container-low border-0 ring-1 ring-outline-variant/50 focus:ring-2 focus:ring-surface-tint rounded-lg py-3 pl-4 pr-11 text-on-surface text-sm transition-all outline-none"
+                        {...form.register("password", { required: true })}
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/80 transition-colors"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" aria-hidden />
+                        ) : (
+                          <Eye className="w-4 h-4" aria-hidden />
+                        )}
+                      </button>
+                    </Box>
                   </Col>
 
                   <BaseButton
